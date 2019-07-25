@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Scrum Card Printer</title>
+    <style>
+        #settings {
+            margin-top: 20px;
+        }
+
+        .scrumCardRow {
+            page-break-after: always;
+        }
+
+        .row {
+            padding-bottom: 5px;
+            border-bottom: 2px dashed gray;
+        }
+
+        .scrumcardContainer {
+            padding: 10px;
+        }
+
+        .scrumcard {
+            border: 1px solid #bcbcbc;
+            border-left-width: 5px;
+            padding: 15px;
+            height: 325px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            min-height: 70px;
+        }
+
+        .card-text {
+            font-size: 80%;
+        }
+
+        .cardKey {
+            color: #707070;
+            margin-bottom: 10px;
+        }
+
+        .cardBottom {
+            position: absolute;
+            bottom: 20px;
+            width: 76%;
+            background-color: white;
+        }
+
+        .epicLabel {
+            border-radius: 3px;
+            display: inline-block;
+            margin: 0 5px 0 0;
+            padding: 5px;
+            max-width: 185px;
+            font-size: 0.7rem;
+        }
+
+        .details {
+            overflow: hidden;
+            font-size: 0.7rem;
+        }
+
+        span.ghx-label-1 {
+            color: #fff;
+            background-color: #815b3a;
+        }
+
+        div.ghx-label-1 {
+            border-left-color: #815b3a;
+        }
+
+        span.ghx-label-3 {
+            color: #fff;
+            background-color: #d39c3f;
+        }
+
+        div.ghx-label-3 {
+            border-left-color: #d39c3f;
+        }
+
+        span.ghx-label-4 {
+            color: #fff;
+            background-color: #3b7fc4;
+        }
+
+        div.ghx-label-4 {
+            border-left-color: #3b7fc4;
+        }
+
+        span.ghx-label-5 {
+            color: #fff;
+            background-color: #4a6785;
+        }
+
+        div.ghx-label-5 {
+            border-left-color: #4a6785;
+        }
+
+        span.ghx-label-6 {
+            color: #fff;
+            background-color: #8eb021;
+        }
+
+        div.ghx-label-6 {
+            border-left-color: #8eb021;
+        }
+
+        span.ghx-label-7 {
+            color: #fff;
+            background-color: #ac707a;
+        }
+
+        div.ghx-label-7 {
+            border-left-color: #ac707a;
+        }
+
+        span.ghx-label-8 {
+            color: #fff;
+            background-color: #654982;
+        }
+
+        div.ghx-label-8 {
+            border-left-color: #654982;
+        }
+
+        span.ghx-label-9 {
+            color: #fff;
+            background-color: #f15c75;
+        }
+
+        div.ghx-label-9 {
+            border-left-color: #f15c75;
+        }
+    </style>
+
+    <style type="text/css" media="print">
+        @page {
+            size: landscape;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" id="settings">
+
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Scrumcard Printer</h5>
+                <h6 class="card-subtitle mb-2 text-muted">How to use</h6>
+                <p class="card-text">
+                    Export a CSV file of your Jira tickets. Epics will not be printed. In order to link the epics to the
+                    story, do include them in your export. Export to CSV with the folowing columns:
+                </p>
+                <ul class="card-text">
+                    <li>Summary</li>
+                    <li>Issue key</li>
+                    <li>Description</li>
+                    <li>Custom field (Epic Link)</li>
+                    <li>Custom field (Epic Name)</li>
+                    <li>Custom field (Epic Colour)</li>
+                </ul>
+                <br>
+                <h6 class="card-subtitle mb-2 text-muted">JQL Example</h6>
+                <p class="card-text">
+                    Including project, filtered by epic and status, but also including the epic itself so we can extract
+                    color and title.<br>
+                    <code>project = PROJ AND status in (Open, Backlog) AND "Epic Link" in (PROJ-2179, PROJ-1807, PROJ-2432, PROJ-2495, PROJ-2452, PROJ-2502, PROJ-2468, PROJ-1783, PROJ-2409) or issueKey in (PROJ-2179, PROJ-1807, PROJ-2432, PROJ-2495, PROJ-2452, PROJ-2502, PROJ-2468, PROJ-1783, PROJ-2409)</code>
+                </p>
+                <br>
+                <h6 class="card-subtitle mb-2 text-muted">Create Scrumcards</h6>
+                <input type="file" id="file">
+            </div>
+        </div>
+        <div id="template" style="display: none;">
+            <div class="row" id="templateRow">
+            </div>
+            <div class="col-md-6 scrumcardContainer" id="templateCard">
+                <div class="scrumcard">
+                    <small class="cardKey">Summary</small>
+                    <h2 class="cardTitle">Some Card Title</h2>
+                    <p class="details"></p>
+                    <div class="cardBottom">
+                        <span class="epicLabel"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="cardContainer">
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.0.1/papaparse.min.js"></script>
+
+    <script>
+
+        String.prototype.trunc =
+            function (n, useWordBoundary) {
+                if (this.length <= n) { return this; }
+                var subString = this.substr(0, n - 1);
+                return (useWordBoundary
+                    ? subString.substr(0, subString.lastIndexOf(' '))
+                    : subString) + "&hellip;";
+            };
+
+        $(document).ready(function () {
+
+            window.onbeforeprint = function () {
+                $("#settings").hide();
+            };
+            window.onafterprint = function () {
+                $("#settings").show();
+            };
+
+            document.querySelector("#file").addEventListener('change', fileChosen, false);
+        });
+
+        function fileChosen(evt) {
+            $("#file").parse({
+                config: {
+                    header: true,
+                    complete: function (results, file) {
+                        console.log("This file done:", file, results);
+                        createScrumCards(results.data);
+                    }
+                },
+                complete: function () {
+                    console.log("All files done!");
+                }
+            });
+        }
+
+        function createScrumCards(data) {
+
+            var epicList = [];
+            var storyList = [];
+
+            // Create Epic list
+            for (var i = 0; i < data.length; i++) {
+                if (data[i]['Issue Type'] === 'Epic') {
+                    epicList.push(data[i]);
+                } else {
+                    storyList.push(data[i]);
+                }
+            }
+
+            for (var i = 0; i < storyList.length; i++) {
+                if (i % 2 === 0) {
+                    var templateRowClone = $('#templateRow').clone();
+                    $(templateRowClone).removeAttr('id');
+                    $('#cardContainer').append(templateRowClone);
+                }
+                if (i % 4 === 0) {
+                    $(templateRowClone).addClass('scrumCardRow');
+                }
+
+                var templateCardClone = $('#templateCard').clone();
+                $(templateCardClone).removeAttr('id');
+
+                $(templateCardClone).find('.cardTitle').text(storyList[i].Summary);
+                $(templateCardClone).find('.cardKey').text(storyList[i]['Issue key']);
+
+
+                var detailText = storyList[i]['Description'];
+                detailText = detailText.replace(/\{.*\}/g, '');
+                detailText = detailText.replace(/\n\s{1,}/g, '<br><br>');
+                detailText = detailText.trunc(350, true);
+
+                $(templateCardClone).find('.details').html(detailText); // Truncate to a good length
+
+                // Find the linked Epic
+                var epic = epicList.find(obj => {
+                    return obj['Issue key'] === storyList[i]['Custom field (Epic Link)'];
+                });
+
+                if (epic) {
+                    $(templateCardClone).find('.epicLabel').text(epic['Custom field (Epic Name)']);
+                    $(templateCardClone).find('.epicLabel').addClass(epic['Custom field (Epic Colour)']);
+                    $(templateCardClone).find('div').first().addClass(epic['Custom field (Epic Colour)']);
+                }
+
+                $(templateRowClone).append(templateCardClone);
+            }
+        }
+    </script>
+</body>
+
+</html>
